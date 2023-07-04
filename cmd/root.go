@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/noirbizarre/gonja"
+	"github.com/nikolalohinski/gonja"
 	"github.com/spf13/cobra"
 )
 
