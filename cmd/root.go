@@ -61,6 +61,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
+	rootCmd.SilenceUsage = true
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.Flags().StringVarP(&inputFile, "input", "i", "", "Input template file (Required)")
 	rootCmd.MarkFlagRequired("input")
