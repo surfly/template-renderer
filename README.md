@@ -1,5 +1,7 @@
 # template-renderer
 
+Simple CLI wrapper for https://github.com/NikolaLohinski/gonja
+
 ```
 Standalone golang wrapper for rendering Jinja2 templates
 
