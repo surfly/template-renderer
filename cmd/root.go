@@ -29,7 +29,7 @@ func renderTemplate(cmd *cobra.Command, args []string) error {
 	ctx := gonja.Context{}
 	for _, element := range os.Environ() {
 		variable := strings.Split(element, "=")
-		ctx[variable[0]] = variable[1]
+		ctx[variable[0]] = strings.Join(variable[1:], "=")
 	}
 	out, err := tpl.Execute(ctx)
 	if err != nil {
