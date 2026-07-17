@@ -27,3 +27,47 @@ testing value: foo
 ```
 ./bin/template-renderer -i test.tpl -o test.txt
 ```
+
+## Template context
+
+Every environment variable is exposed as a template variable:
+
+```
+echo 'value: {{ FOO }}' > test.tpl
+FOO=bar template-renderer -i test.tpl
+value: bar
+```
+
+All context values are strings. The template's trailing newline is kept
+(unlike stock Jinja, which strips it), so rendered config files end with
+`\n` exactly when the template does.
+
+## Available filters
+
+All [gonja v2 builtin filters](https://github.com/NikolaLohinski/gonja/blob/master/docs/filters.md)
+(strict Jinja2 parity: `default`, `format`, `join`, `lower`, `replace`,
+`trim`, `tojson`, ...) plus the following gonja v1 filters that were dropped
+by the v2 migration and are restored by this wrapper:
+
+| filter | usage | result |
+| ------ | ----- | ------ |
+| `fromjson` | `{% set cfg = CFG_JSON \| fromjson %}` | parses a JSON string into a value; numbers keep their literal form (`8080`, not `8080.0`). Errors on empty input, invalid JSON, or trailing data |
+| `split` | `{{ ADDR \| split(':') }}` | splits a string on a delimiter into a list: `{{ (ADDR \| split(':'))[0] }}`, `{{ NAMES \| split(' ') \| join('\|') }}` |
+| `unset` | `{{ cfg \| unset("key") }}` | returns a copy of a dict without the given key; missing keys are ignored |
+
+Combined example, as used by deployment templates:
+
+```jinja
+{%- set BACKENDS = BACKENDS_JSON | default("{}") | fromjson -%}
+{%- set BACKENDS = BACKENDS | unset("") -%}
+{%- for id in BACKENDS -%}
+    {%- set host = (BACKENDS[id] | split(':'))[0] -%}
+node {{ id }} {{ host }}
+{% endfor %}
+```
+
+## Tests
+
+`make test` runs the unit tests plus a golden-file regression suite
+(`testdata/regression/`) that pins rendering behavior across gonja upgrades.
+This repository is public — keep all test data synthetic.

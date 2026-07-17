@@ -20,9 +20,13 @@ generating configuration files in deployment scripts and containers.
 main.go            Entry point; calls cmd.Execute
 cmd/
   root.go          Root command: flags and template rendering
+  filters.go       gonja v1 filters dropped from gonja v2 builtins (fromjson, split, unset)
   logger.go        slog setup wired to the --debug/--trace flags
   version.go       Version variable stamped at build time via ldflags
   root_test.go     Table-driven tests for template rendering
+  regression_test.go  Golden-file suite pinning rendering behavior
+testdata/
+  regression/      synthetic templates + env + goldens (see its README.md)
 ```
 
 ---
@@ -58,3 +62,6 @@ FOO=bar ./template-renderer -i /tmp/smoke.tpl
 
 - All template context values are strings; numeric operations in templates
   need explicit conversion filters.
+- **This repository is public.** Never commit downstream deployment
+  templates, rendered production configs, or values from private
+  configuration — all test data must be synthetic.

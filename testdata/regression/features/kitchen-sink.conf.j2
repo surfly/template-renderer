@@ -1,0 +1,58 @@
+{#- Exercises every Jinja construct that downstream deployment templates
+    rely on, so rendering behavior is pinned across template-renderer and
+    gonja upgrades. All values are synthetic. -#}
+{%- set BACKENDS = BACKENDS_JSON | default("{}") | fromjson -%}
+{%- if '' in BACKENDS -%}
+    {%- set BACKENDS['00'] = BACKENDS[''] -%}
+{%- endif -%}
+{%- set BACKENDS = BACKENDS | unset("") -%}
+
+{%- set ns = namespace(value="") -%}
+{%- for id in BACKENDS -%}
+    {%- set parts = BACKENDS[id] | split(':') -%}
+    {%- set ns.value = ns.value ~ " " ~ parts[0] -%}
+{%- endfor -%}
+{%- set NODE_IPS = ns.value | trim -%}
+
+{%- set REDIRECTS = REDIRECTS_JSON | default("{}") | fromjson -%}
+{%- set SERVER_LIST = SERVER_NAMES | split(' ') -%}
+{%- set MAIN_SERVER = SERVER_LIST[0] -%}
+
+{%- set DOMAINS_RE = SERVER_NAMES | replace(" ", "|.") -%}
+{%- set DOMAINS_RE = "." ~ DOMAINS_RE -%}
+{%- set DOMAINS_RE = DOMAINS_RE | replace(".", "\\.") -%}
+
+{%- set BIND_LINE = "bind %s:443 ssl crt /certs v4v6" | format(LISTEN_ON | default("[::]")) -%}
+{%- set BACKEND_ADDR = "%s:%s" | format(BACKEND_HOST, BACKEND_PORT) -%}
+{%- set DEBUG = (DEBUG_MODE | lower) in ("true", "1") -%}
+
+{%- macro health_endpoint() -%}
+    option httpchk GET {{ HEALTHCHECK_PATH }}
+{%- endmacro -%}
+
+global
+    node-ips {{ NODE_IPS }}
+    {{ BIND_LINE }}
+    backend-addr {{ BACKEND_ADDR }}
+    # literal percent signs must survive: %[var(txn.trace_id)] %s %20
+
+frontend main
+    {%- if DEBUG %}
+    log-level debug
+    {%- else %}
+    log-level info
+    {%- endif %}
+    host-regex {{ DOMAINS_RE }}$
+    main-server {{ MAIN_SERVER }}
+    server-alternatives {{ SERVER_LIST | join("|") }}
+{{ health_endpoint() }}
+{% for name in SERVER_LIST %}
+backend srv{{ loop.index }}
+    server {{ name }} {{ name }}:443
+    {%- if name in REDIRECTS and 'home' in REDIRECTS[name] %}
+    redirect {{ REDIRECTS[name]['home'] | trim("/ ") }}
+    {%- endif %}
+{% endfor %}
+{%- for id in BACKENDS %}
+node {{ id }} addr {{ BACKENDS[id] }}
+{%- endfor %}

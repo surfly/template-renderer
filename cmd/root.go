@@ -37,6 +37,11 @@ func renderTemplate(cmd *cobra.Command, args []string) error {
 	cleanup := initLogger(tracePath, level)
 	defer cleanup()
 
+	// gonja v2 strips the template's final newline by default (Jinja
+	// behavior); gonja v1 kept it, and rendered config files must not
+	// change byte-for-byte on renderer upgrades
+	gonja.DefaultConfig.KeepTrailingNewline = true
+
 	tpl, err := gonja.FromFile(inputFile)
 	if err != nil {
 		return fmt.Errorf("load template %q: %w", inputFile, err)

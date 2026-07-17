@@ -1,0 +1,7 @@
+BACKENDS_JSON={"": "10.0.0.1:443", "01": "10.0.0.2:443"}
+REDIRECTS_JSON={"one.example.test": {"home": "https://www.example.test/"}}
+SERVER_NAMES=one.example.test two.example.test
+BACKEND_HOST=127.0.0.1
+BACKEND_PORT=8080
+DEBUG_MODE=false
+HEALTHCHECK_PATH=/healthcheck/test
