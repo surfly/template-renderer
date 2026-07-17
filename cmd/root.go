@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/nikolalohinski/gonja"
+	"github.com/nikolalohinski/gonja/v2"
+	"github.com/nikolalohinski/gonja/v2/exec"
 	"github.com/spf13/cobra"
 )
 
@@ -24,14 +25,17 @@ var rootCmd = &cobra.Command{
 
 func renderTemplate(cmd *cobra.Command, args []string) error {
 
-	var tpl = gonja.Must(gonja.FromFile(inputFile))
+	tpl, err := gonja.FromFile(inputFile)
+	if err != nil {
+		return err
+	}
 
-	ctx := gonja.Context{}
+	data := map[string]any{}
 	for _, element := range os.Environ() {
 		variable := strings.Split(element, "=")
-		ctx[variable[0]] = strings.Join(variable[1:], "=")
+		data[variable[0]] = strings.Join(variable[1:], "=")
 	}
-	out, err := tpl.Execute(ctx)
+	out, err := tpl.ExecuteToString(exec.NewContext(data))
 	if err != nil {
 		return err
 	}
