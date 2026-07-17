@@ -7,18 +7,14 @@ Standalone golang wrapper for rendering Jinja2 templates
 
 Usage:
   template-renderer [flags]
-  template-renderer [command]
-
-Available Commands:
-  help        Help about any command
-  version     Print version
 
 Flags:
+  -d, --debug           Debug-level logging on stderr.
   -h, --help            help for template-renderer
   -i, --input string    Input template file (Required)
   -o, --output string   Outfile to write the outcome (Prints to stdout by default)
-
-Use "template-renderer [command] --help" for more information about a command.
+      --trace           Trace-level logs to /tmp/template-renderer.log (truncated each run).
+      --version         Print the version and exit
 ```
 
 Usage examples:

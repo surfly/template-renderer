@@ -1,1 +1,3 @@
-.monova.history
+bin/
+template-renderer
+.monova*
