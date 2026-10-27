@@ -207,6 +207,18 @@ func TestRenderTemplate(t *testing.T) {
 			want:     "alpha",
 		},
 		{
+			name:     "expression syntax in env value renders literally",
+			template: "{{ TEST_VALUE }}",
+			env:      map[string]string{"TEST_VALUE": "{{ 7*7 }}"},
+			want:     "{{ 7*7 }}",
+		},
+		{
+			name:     "block syntax in env value renders literally",
+			template: "{{ TEST_VALUE }}",
+			env:      map[string]string{"TEST_VALUE": "{% for i in range(3) %}z{% endfor %}"},
+			want:     "{% for i in range(3) %}z{% endfor %}",
+		},
+		{
 			name:    "missing input file",
 			missing: true,
 			wantErr: "load template",
