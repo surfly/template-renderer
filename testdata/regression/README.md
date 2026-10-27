@@ -27,3 +27,6 @@ for t in *.j2; do template-renderer -i "$t" -o "golden/$(basename "$t" .j2)"; do
 
 The current goldens were generated with template-renderer v1.4.0 (gonja v1),
 the last release before the gonja v2 migration, to guarantee upgrade parity.
+Printing the result of `or` / `and` differs from v1.4.0 on purpose (gonja
+v2.9 returns the operand, v1.4.0 rendered `True`/`False`), so those cases are
+pinned in `cmd/root_test.go` rather than in the goldens.
