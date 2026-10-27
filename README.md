@@ -42,6 +42,10 @@ All context values are strings. The template's trailing newline is kept
 (unlike stock Jinja, which strips it), so rendered config files end with
 `\n` exactly when the template does.
 
+`or` and `and` return one of their operands, as in Jinja, so
+`{{ PORT or "8080" }}` renders `8080` when `PORT` is empty or unset.
+Version 1.6.2 and earlier rendered `True` or `False` instead.
+
 ## Available filters
 
 All [gonja v2 builtin filters](https://github.com/NikolaLohinski/gonja/blob/master/docs/filters.md)

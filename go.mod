@@ -3,7 +3,7 @@ module github.com/surfly/template-renderer
 go 1.26.0
 
 require (
-	github.com/nikolalohinski/gonja/v2 v2.8.0
+	github.com/nikolalohinski/gonja/v2 v2.9.1
 	github.com/spf13/cobra v1.10.2
 )
 

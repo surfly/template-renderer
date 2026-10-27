@@ -152,6 +152,61 @@ func TestRenderTemplate(t *testing.T) {
 			want: "10.0.0.1",
 		},
 		{
+			// template-renderer 1.6.2 and earlier rendered True/False here;
+			// gonja v2.9 returns the operand, as Jinja does
+			name:     "or returns second operand when first is empty",
+			template: `{{ TEST_EMPTY or "fallback" }}`,
+			env:      map[string]string{"TEST_EMPTY": ""},
+			want:     "fallback",
+		},
+		{
+			name:     "or returns first operand when it is set",
+			template: `{{ TEST_A or "fallback" }}`,
+			env:      map[string]string{"TEST_A": "alpha"},
+			want:     "alpha",
+		},
+		{
+			name:     "or returns second operand when first is undefined",
+			template: `{{ MISSING_VALUE or "fallback" }}`,
+			want:     "fallback",
+		},
+		{
+			name:     "and returns last operand when all are set",
+			template: "{{ TEST_A and TEST_B }}",
+			env:      map[string]string{"TEST_A": "alpha", "TEST_B": "beta"},
+			want:     "beta",
+		},
+		{
+			name:     "and returns empty first operand",
+			template: "[{{ TEST_EMPTY and TEST_B }}]",
+			env:      map[string]string{"TEST_EMPTY": "", "TEST_B": "beta"},
+			want:     "[]",
+		},
+		{
+			name:     "set with or stores operand value",
+			template: `{%- set port = TEST_EMPTY or "8080" -%}{{ port }}`,
+			env:      map[string]string{"TEST_EMPTY": ""},
+			want:     "8080",
+		},
+		{
+			name:     "or in if condition",
+			template: "{% if TEST_EMPTY or TEST_A %}yes{% else %}no{% endif %}",
+			env:      map[string]string{"TEST_EMPTY": "", "TEST_A": "alpha"},
+			want:     "yes",
+		},
+		{
+			name:     "rstrip without trailing match keeps input",
+			template: `{{ TEST_A.rstrip("z") }}`,
+			env:      map[string]string{"TEST_A": "alpha"},
+			want:     "alpha",
+		},
+		{
+			name:     "slice past the end is clamped",
+			template: "{{ TEST_A[0:100] }}",
+			env:      map[string]string{"TEST_A": "alpha"},
+			want:     "alpha",
+		},
+		{
 			name:    "missing input file",
 			missing: true,
 			wantErr: "load template",
